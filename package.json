@@ -1,0 +1,42 @@
+{
+  "name": "#{REPO_NAME}#",
+  "version": "0.0.0",
+  "description": "#{DESC}#",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#.git"
+  },
+  "scripts": {
+    "build": "rm -rf dist && pnpm build:cjs && pnpm build:esm",
+    "build:cjs": "tsc -p tsconfig.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check:cmd": "biome check --no-errors-on-unmatched",
+    "check:fix": "pnpm check:cmd --write .",
+    "check": "pnpm check:cmd .",
+    "fullcheck": "pnpm check:fix && pnpm typecheck && pnpm test"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js",
+    "./tools": "./dist/tools/index.js"
+  },
+  "author": "u/#{USER_OR_ORG}#",
+  "license": "MIT",
+  "files": ["src/", "dist/", "!dist/tsconfig.tsbuildinfo"],
+  "keywords": [],
+  "homepage": "https://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#",
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "@types/node": "^20.2.1",
+    "lefthook": "^1.7.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
