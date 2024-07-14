@@ -31,15 +31,14 @@ $ npm install --save easy-lucia
 ```
 
 ```typescript
-import { myFunction, myObject, MyReactComponent } from "easy-lucia";
+import { myFunction } from "easy-lucia";
 ```
 
 Specific imports, only import what you need:
 
 ```typescript
 import { myFunction } from "easy-lucia/myFunction";
-import { myObject } from "easy-lucia/myObject";
-import MyReactComponent from "easy-lucia/MyReactComponent";
+
 ```
 
 # Contributing
