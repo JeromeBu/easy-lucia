@@ -1,10 +1,10 @@
 {
-  "name": "#{REPO_NAME}#",
+  "name": "easy-lucia",
   "version": "0.0.0",
-  "description": "#{DESC}#",
+  "description": "Login password classic setup with lucia, to avoid recoding the usecases each time. It only needs some config and email content to have an auth working.",
   "repository": {
     "type": "git",
-    "url": "git://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#.git"
+    "url": "git://github.com/JeromeBu/easy-lucia.git"
   },
   "scripts": {
     "build": "rm -rf dist && pnpm build:cjs && pnpm build:esm",
@@ -24,11 +24,11 @@
     "./*": "./dist/*.js",
     "./tools": "./dist/tools/index.js"
   },
-  "author": "u/#{USER_OR_ORG}#",
+  "author": "u/JeromeBu",
   "license": "MIT",
   "files": ["src/", "dist/", "!dist/tsconfig.tsbuildinfo"],
   "keywords": [],
-  "homepage": "https://github.com/#{USER_OR_ORG}#/#{REPO_NAME}#",
+  "homepage": "https://github.com/JeromeBu/easy-lucia",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
     "@types/node": "^20.2.1",
