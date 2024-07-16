@@ -26,7 +26,7 @@
   },
   "author": "u/JeromeBu",
   "license": "MIT",
-  "files": ["src/", "dist/", "!dist/tsconfig.tsbuildinfo"],
+  "files": ["srcold/", "dist/", "!dist/tsconfig.tsbuildinfo"],
   "keywords": [],
   "homepage": "https://github.com/JeromeBu/easy-lucia",
   "devDependencies": {
