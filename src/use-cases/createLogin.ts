@@ -2,7 +2,7 @@ import { Argon2id } from "oslo/password";
 
 import type { EmailAndPassword } from "../types";
 
-import { hashingParams } from "../config/createLucia";
+import { hashingParams } from "../config";
 import type { AuthDependencies } from "../types";
 
 export const createLogin =

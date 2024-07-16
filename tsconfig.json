@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "es5",
+    "target": "es2015",
     "moduleResolution": "node",
-    "lib": ["es2015", "DOM", "ES2019.Object"],
+    "lib": ["ES2023"],
     "esModuleInterop": true,
     "declaration": true,
     "outDir": "./dist",
@@ -14,9 +14,8 @@
     "incremental": true,
     "strict": true,
     "downlevelIteration": true,
-    "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

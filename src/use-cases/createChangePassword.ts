@@ -3,7 +3,7 @@ import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { Argon2id } from "oslo/password";
 
-import { hashingParams } from "../config/createLucia";
+import { hashingParams } from "../config";
 import type { AuthDependencies } from "../types";
 
 export const createChangePassword =

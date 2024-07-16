@@ -1,8 +1,9 @@
-import { generateIdFromEntropySize } from "lucia";
+import { TimeSpan, generateIdFromEntropySize } from "lucia";
+import { createDate } from "oslo";
 import { alphabet, generateRandomString } from "oslo/crypto";
 import { Argon2id } from "oslo/password";
 
-import { hashingParams } from "../config/createLucia";
+import { hashingParams } from "../config";
 import type { AuthDependencies, EmailAndPassword } from "../types";
 
 export const createSignUp =
@@ -20,6 +21,13 @@ export const createSignUp =
       });
 
       const emailValidationCode = generateRandomString(8, alphabet("0-9"));
+
+      await authRepository.emailVerificationCode.insert({
+        code: emailValidationCode,
+        userId: userId,
+        email,
+        expiresAt: createDate(new TimeSpan(3, "h")),
+      });
 
       await emails.sendVerificationCode({
         email,

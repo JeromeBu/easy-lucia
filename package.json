@@ -38,5 +38,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "lucia": "^3.2.0",
+    "oslo": "^1.2.1"
   }
 }

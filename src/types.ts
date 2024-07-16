@@ -30,8 +30,9 @@ export type EmailVerification = {
 
 type WithPasswordHash = { passwordHash: string };
 
-type UserWithPasswordHash = User & WithPasswordHash;
-type ResetPasswordToken = {
+export type UserWithPasswordHash = User & WithPasswordHash;
+
+export type ResetPasswordToken = {
   userId: string;
   tokenHash: string;
   expiresAt: Date;

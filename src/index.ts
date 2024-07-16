@@ -7,6 +7,7 @@ import { createSignUp } from "./use-cases/createSignUp";
 import { createValidateRequest } from "./use-cases/createValidateRequest";
 import { createVerifyEmail } from "./use-cases/createVerifyEmail";
 
+export type AuthUseCases = ReturnType<typeof createAuthUseCases>;
 export const createAuthUseCases = (authDeps: AuthDependencies) => ({
   signUp: createSignUp(authDeps),
   login: createLogin(authDeps),

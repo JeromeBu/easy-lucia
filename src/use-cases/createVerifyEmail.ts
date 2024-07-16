@@ -1,6 +1,5 @@
 import type { User } from "lucia";
 import { isWithinExpirationDate } from "oslo";
-
 import type { AuthDependencies, EmailVerification } from "../types";
 
 export const createVerifyEmail = ({ lucia, authRepository }: AuthDependencies) => {
