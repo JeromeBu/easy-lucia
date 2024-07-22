@@ -1,4 +1,5 @@
 import type { Lucia, User } from "lucia";
+import type { TypedArray } from "oslo";
 
 export type EmailAndPassword = {
   email: string;
@@ -65,9 +66,18 @@ export type AuthRepository = {
   };
 };
 
+export type HashingParams = {
+  memorySize?: number;
+  iterations?: number;
+  tagLength?: number;
+  parallelism?: number;
+  secret?: ArrayBuffer | TypedArray;
+};
+
 export type AuthDependencies = {
   resetPasswordBaseUrl: string;
   lucia: Lucia;
   authRepository: AuthRepository;
   emails: AuthEmailSenders;
+  hashingParams: HashingParams;
 };

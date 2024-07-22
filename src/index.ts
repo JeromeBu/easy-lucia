@@ -1,4 +1,4 @@
-import type { AuthDependencies } from "./types";
+import type { AuthDependencies, HashingParams } from "./types";
 import { createChangePassword } from "./use-cases/createChangePassword";
 import { createLogin } from "./use-cases/createLogin";
 import { createLogout } from "./use-cases/createLogout";
@@ -19,3 +19,11 @@ export const createAuthUseCases = (authDeps: AuthDependencies) => ({
 });
 
 export type { AuthDependencies } from "./types";
+
+export const defaultHashingParams: HashingParams = {
+  // recommended minimum parameters
+  memorySize: 19456,
+  iterations: 2,
+  tagLength: 32,
+  parallelism: 1,
+};

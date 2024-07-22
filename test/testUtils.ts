@@ -2,6 +2,7 @@ import { expect } from "vitest";
 import { createAuthUseCases } from "../src";
 import { InMemoryAuthRepository } from "../src/in-memory-adapter/InMemoryAuthRepository";
 import { createInMemoryLucia } from "../src/in-memory-adapter/createInMemoryLucia";
+import type { HashingParams } from "../src/types";
 
 export type SentEmail =
   | {
@@ -19,7 +20,7 @@ export type SentEmail =
       };
     };
 
-export const createTestUseCases = () => {
+export const createTestUseCases = (hashingParams: HashingParams) => {
   const authRepository = new InMemoryAuthRepository();
   const inMemoryLucia = createInMemoryLucia(authRepository.user);
 
@@ -37,6 +38,7 @@ export const createTestUseCases = () => {
       },
     },
     resetPasswordBaseUrl: "",
+    hashingParams,
   });
 
   return {
@@ -52,4 +54,8 @@ export const expectToEqual = <T>(actual: T, expected: T) => {
 
 export const expectToMatch = <T>(actual: T, expected: Partial<T>) => {
   expect(actual).toMatchObject(expected);
+};
+
+export const expectPromiseToFailWith = (promise: Promise<any>, expectedError: string) => {
+  expect(promise).rejects.toThrow(expectedError);
 };

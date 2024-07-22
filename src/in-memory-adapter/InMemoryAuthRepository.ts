@@ -26,6 +26,16 @@ export class InMemoryUserRepository implements UserRepository {
   get users(): UserWithPasswordHash[] {
     return Object.values(this.#users);
   }
+
+  set users(users: UserWithPasswordHash[]) {
+    this.#users = users.reduce(
+      (acc, user) => {
+        acc[user.email] = user;
+        return acc;
+      },
+      {} as Record<string, UserWithPasswordHash>,
+    );
+  }
 }
 
 type EmailVerificationRepository = AuthRepository["emailVerificationCode"];

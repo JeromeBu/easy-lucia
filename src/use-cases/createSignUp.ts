@@ -3,11 +3,10 @@ import { createDate } from "oslo";
 import { alphabet, generateRandomString } from "oslo/crypto";
 import { Argon2id } from "oslo/password";
 
-import { hashingParams } from "../config";
 import type { AuthDependencies, EmailAndPassword } from "../types";
 
 export const createSignUp =
-  ({ lucia, authRepository, emails }: AuthDependencies) =>
+  ({ lucia, authRepository, emails, hashingParams }: AuthDependencies) =>
   async ({ email, password }: EmailAndPassword) => {
     const passwordHash = await new Argon2id(hashingParams).hash(password);
     const userId = generateIdFromEntropySize(10); // 16 characters long

@@ -2,11 +2,10 @@ import { Argon2id } from "oslo/password";
 
 import type { EmailAndPassword } from "../types";
 
-import { hashingParams } from "../config";
 import type { AuthDependencies } from "../types";
 
 export const createLogin =
-  ({ lucia, authRepository }: AuthDependencies) =>
+  ({ lucia, authRepository, hashingParams }: AuthDependencies) =>
   async ({ email, password }: EmailAndPassword) => {
     const user = await authRepository.user.findByEmail(email);
 

@@ -3,11 +3,10 @@ import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { Argon2id } from "oslo/password";
 
-import { hashingParams } from "../config";
 import type { AuthDependencies } from "../types";
 
 export const createChangePassword =
-  ({ authRepository, lucia }: AuthDependencies) =>
+  ({ authRepository, lucia, hashingParams }: AuthDependencies) =>
   async ({
     password,
     resetPasswordToken,
