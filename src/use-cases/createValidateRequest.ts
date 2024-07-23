@@ -1,11 +1,11 @@
 import type { Lucia, Session, User } from "lucia";
 
-import type { Cookies } from "../types";
+import type { CookieAccessor } from "../types";
 
 export const createValidateRequest =
   (lucia: Lucia) =>
   async (
-    cookies: Cookies,
+    cookies: CookieAccessor,
   ): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
     if (!sessionId) {

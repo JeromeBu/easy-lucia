@@ -1,10 +1,18 @@
+import type { DatabaseSession } from "lucia";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { AuthUseCases } from "../src";
 import type { InMemoryAuthRepository } from "../src/in-memory-adapter/InMemoryAuthRepository";
-import type { HashingParams, UserWithPasswordHash } from "../src/types";
+import type { InMemoryLuciaAdapter } from "../src/in-memory-adapter/InMemoryLuciaAdapter";
+import type { createInMemoryCookieAccessor } from "../src/in-memory-adapter/createInMemoryCookieAccessor";
+import type {
+  EmailVerification,
+  HashingParams,
+  UserWithPasswordHash,
+} from "../src/types";
 import {
   type SentEmail,
   createTestUseCases,
+  expectObjectToMatchInArray,
   expectPromiseToFailWith,
   expectToEqual,
   expectToMatch,
@@ -18,8 +26,8 @@ const testHashingParams: HashingParams = {
 };
 
 const emailAndPassword = {
-  email: "test@test.com",
-  password: "myPassw0rd+12",
+  email: "TEST@tEst.com ",
+  password: " myPassw0rd+12",
 };
 
 describe("Auth use cases", () => {
@@ -27,18 +35,28 @@ describe("Auth use cases", () => {
   let authRepository: InMemoryAuthRepository;
   let sentEmails: SentEmail[];
   let user: UserWithPasswordHash;
+  let inMemoryLuciaAdapter: InMemoryLuciaAdapter;
+  let inMemoryCookieAccessor: ReturnType<typeof createInMemoryCookieAccessor>;
 
   beforeEach(async () => {
-    ({ useCases, authRepository, sentEmails } = createTestUseCases(testHashingParams));
+    ({
+      useCases,
+      authRepository,
+      sentEmails,
+      inMemoryCookieAccessor,
+      inMemoryLuciaAdapter,
+    } = createTestUseCases(testHashingParams));
     await useCases.signUp(emailAndPassword);
     user = authRepository.user.users[0];
+    await inMemoryLuciaAdapter.deleteUserSessions(user.id);
   });
 
-  describe("signUp", () => {
+  describe("signUp and verify email", () => {
     it("saves the user and the session, and returns the cookie", async () => {
+      expectToEqual(inMemoryLuciaAdapter.sessions, []);
       const nowEmailAndPassword = {
-        email: "another@test.com",
-        password: "myPassw0rd+12",
+        email: " anothER@test.com",
+        password: "myPassw0rd+12 ",
       };
       const cookie = await useCases.signUp(nowEmailAndPassword);
 
@@ -46,29 +64,44 @@ describe("Auth use cases", () => {
         name: "auth_session",
         value: expect.any(String),
       });
-      expect(authRepository.user.users).toHaveLength(2);
+
+      expectSessionsToMatch([
+        {
+          userId: expect.any(String),
+          expiresAt: expect.any(Date),
+          id: expect.any(String),
+        },
+      ]);
+
+      expectUsersToMatch([
+        { email: user.email },
+        {
+          id: expect.any(String),
+          passwordHash: expect.any(String),
+          email: nowEmailAndPassword.email.trim().toLowerCase(),
+          emailVerifiedAt: null,
+        },
+      ]);
       // biome-ignore lint/style/noNonNullAssertion: we test it's not null
       const newUser = authRepository.user.users.at(-1)!;
-      expectToEqual(newUser, {
-        id: expect.any(String),
-        passwordHash: expect.any(String),
-        email: nowEmailAndPassword.email,
-        emailVerifiedAt: null,
-      });
 
+      // even if the password is the same, the hash is different
       expect(user.passwordHash).not.toEqual(newUser.passwordHash);
 
-      expect(authRepository.emailVerificationCode.emailVerifications).toHaveLength(2);
+      expectVerificationEmailsToMatch([
+        { userId: user.id },
+        {
+          code: expect.any(String),
+          userId: newUser.id,
+          email: newUser.email,
+          expiresAt: expect.any(Date),
+        },
+      ]);
       const emailVerificationInRepo =
         // biome-ignore lint/style/noNonNullAssertion: we test it's not null
         authRepository.emailVerificationCode.emailVerifications.at(-1)!;
-      expectToEqual(emailVerificationInRepo, {
-        code: expect.any(String),
-        userId: newUser.id,
-        email: newUser.email,
-        expiresAt: expect.any(Date),
-      });
-      expectToEqual(sentEmails, [
+
+      expectSentEmailsToMatch([
         {
           kind: "sendVerificationCode",
           params: {
@@ -84,10 +117,27 @@ describe("Auth use cases", () => {
           },
         },
       ]);
+
+      const validateEmailCookie = await useCases.verifyEmail({
+        candidateCode: emailVerificationInRepo.code,
+        sessionId: cookie.value,
+      });
+      expectToMatch(validateEmailCookie, {
+        name: "auth_session",
+        value: expect.any(String),
+      });
+      expectUsersToMatch([user, { ...newUser, emailVerifiedAt: expect.any(Date) }]);
     });
   });
 
-  describe("logIn", () => {
+  describe("login, verifyRequest and logout", () => {
+    it("fails if no user are found with email", async () => {
+      expectPromiseToFailWith(
+        useCases.login({ email: "not@found.com", password: "whatever" }),
+        "Invalid email or password",
+      );
+    });
+
     it("fails if password do not match", async () => {
       authRepository.user.users = [user];
       expectPromiseToFailWith(
@@ -96,13 +146,59 @@ describe("Auth use cases", () => {
       );
     });
 
-    it("creates a session and returns the cookie", async () => {
+    it("login creates a session and the cookie, than validates a request, than logout", async () => {
       authRepository.user.users = [user];
       const cookie = await useCases.login(emailAndPassword);
       expectToMatch(cookie, {
         name: "auth_session",
         value: expect.any(String),
       });
+      expectSessionsToMatch([{ userId: user.id }]);
+
+      inMemoryCookieAccessor().set(cookie.name, cookie.value);
+
+      const result = await useCases.validateRequest(inMemoryCookieAccessor);
+      expectToMatch(result, {
+        user: {
+          id: user.id,
+          email: user.email,
+          emailVerifiedAt: null,
+        },
+        session: {
+          id: expect.any(String),
+          userId: user.id,
+          expiresAt: expect.any(Date),
+          fresh: false,
+        },
+      });
+
+      const cookieAfterLogout = await useCases.logout(inMemoryCookieAccessor);
+      expectToMatch(cookieAfterLogout, {
+        name: "auth_session",
+        value: "",
+      });
+      expectSessionsToMatch([]);
     });
   });
+
+  const expectSessionsToMatch = (expectedSessions: Partial<DatabaseSession>[]) => {
+    expectObjectToMatchInArray(inMemoryLuciaAdapter.sessions, expectedSessions);
+  };
+
+  const expectUsersToMatch = (expectedUsers: Partial<UserWithPasswordHash>[]) => {
+    expectObjectToMatchInArray(authRepository.user.users, expectedUsers);
+  };
+
+  const expectVerificationEmailsToMatch = (
+    expectedVerificationEmails: Partial<EmailVerification>[],
+  ) => {
+    expectObjectToMatchInArray(
+      authRepository.emailVerificationCode.emailVerifications,
+      expectedVerificationEmails,
+    );
+  };
+
+  const expectSentEmailsToMatch = (expectedSentEmails: Partial<SentEmail>[]) => {
+    expectObjectToMatchInArray(sentEmails, expectedSentEmails);
+  };
 });

@@ -1,9 +1,8 @@
 import { Lucia } from "lucia";
-import type { InMemoryUserRepository } from "./InMemoryAuthRepository";
-import { InMemoryLuciaAdapter } from "./InMemoryLuciaAdapter";
+import type { InMemoryLuciaAdapter } from "./InMemoryLuciaAdapter";
 
-export const createInMemoryLucia = (userRepository: InMemoryUserRepository) => {
-  return new Lucia(new InMemoryLuciaAdapter(userRepository), {
+export const createInMemoryLucia = (inMemoryLuciaAdapter: InMemoryLuciaAdapter) => {
+  return new Lucia(inMemoryLuciaAdapter, {
     sessionCookie: {
       attributes: {
         secure: false,

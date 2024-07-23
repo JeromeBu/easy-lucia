@@ -6,7 +6,7 @@ export type EmailAndPassword = {
   password: string;
 };
 
-export type Cookies = () => {
+export type CookieAccessor = () => {
   get: (name: string) => { value: string } | undefined;
   set: (name: string, value: string, attributes?: Record<string, any>) => void;
 };
@@ -47,7 +47,11 @@ export type AuthRepository = {
       userId: string;
       verifiedAt: Date;
     }) => Promise<void>;
-    updatePasswordHash: (params: { userId: string } & WithPasswordHash) => Promise<void>;
+    updatePasswordHash: (
+      params: {
+        userId: string;
+      } & WithPasswordHash,
+    ) => Promise<void>;
   };
 
   emailVerificationCode: {

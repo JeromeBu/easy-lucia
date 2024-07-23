@@ -1,11 +1,11 @@
 import type { Lucia } from "lucia";
 
-import type { Cookies } from "../types";
+import type { CookieAccessor } from "../types";
 import { createValidateRequest } from "./createValidateRequest";
 
 export const createLogout = (lucia: Lucia) => {
   const validateRequest = createValidateRequest(lucia);
-  return async (cookies: Cookies) => {
+  return async (cookies: CookieAccessor) => {
     const { session } = await validateRequest(cookies);
     if (!session) throw new Error("Unauthorized");
 

@@ -12,7 +12,7 @@ export class InMemoryUserRepository implements UserRepository {
     this.#users[params.id] = params;
   }
   async findByEmail(email: string): Promise<UserWithPasswordHash | undefined> {
-    return this.#users[email];
+    return this.users.find((user) => user.email === email);
   }
   async markEmailVerified(params: { userId: string; verifiedAt: Date }): Promise<void> {
     this.#users[params.userId].emailVerifiedAt = params.verifiedAt;
