@@ -30,7 +30,7 @@ export class InMemoryUserRepository implements UserRepository {
   set users(users: UserWithPasswordHash[]) {
     this.#users = users.reduce(
       (acc, user) => {
-        acc[user.email] = user;
+        acc[user.id] = user;
         return acc;
       },
       {} as Record<string, UserWithPasswordHash>,

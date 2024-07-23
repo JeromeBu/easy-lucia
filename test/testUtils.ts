@@ -22,7 +22,10 @@ export type SentEmail =
       };
     };
 
-export const createTestUseCases = (hashingParams: HashingParams) => {
+export const createTestUseCases = (config: {
+  hashingParams: HashingParams;
+  resetPasswordBaseUrl: string;
+}) => {
   const inMemoryCookieAccessor = createInMemoryCookieAccessor();
   const authRepository = new InMemoryAuthRepository();
   const inMemoryLuciaAdapter = new InMemoryLuciaAdapter(authRepository.user);
@@ -41,8 +44,8 @@ export const createTestUseCases = (hashingParams: HashingParams) => {
         sentEmails.push({ kind: "sendPasswordResetLink", params });
       },
     },
-    resetPasswordBaseUrl: "",
-    hashingParams,
+    resetPasswordBaseUrl: config.resetPasswordBaseUrl,
+    hashingParams: config.hashingParams,
   });
 
   return {

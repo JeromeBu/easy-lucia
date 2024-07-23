@@ -8,11 +8,11 @@ import type { AuthDependencies } from "../types";
 export const createChangePassword =
   ({ authRepository, lucia, hashingParams }: AuthDependencies) =>
   async ({
-    password,
+    newPassword,
     resetPasswordToken,
   }: {
     email: string;
-    password: string;
+    newPassword: string;
     resetPasswordToken: string;
   }) => {
     const tokenHash = encodeHex(
@@ -30,7 +30,7 @@ export const createChangePassword =
 
     await lucia.invalidateUserSessions(token.userId);
 
-    const passwordHash = await new Argon2id(hashingParams).hash(password);
+    const passwordHash = await new Argon2id(hashingParams).hash(newPassword);
 
     await authRepository.user.updatePasswordHash({
       userId: token.userId,

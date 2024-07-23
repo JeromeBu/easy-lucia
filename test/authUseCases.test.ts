@@ -7,6 +7,7 @@ import type { createInMemoryCookieAccessor } from "../src/in-memory-adapter/crea
 import type {
   EmailVerification,
   HashingParams,
+  ResetPasswordToken,
   UserWithPasswordHash,
 } from "../src/types";
 import {
@@ -24,6 +25,8 @@ const testHashingParams: HashingParams = {
   tagLength: 32,
   parallelism: 1,
 };
+
+const resetPasswordBaseUrl = "https://my-domain.com/reset-password";
 
 const emailAndPassword = {
   email: "TEST@tEst.com ",
@@ -45,7 +48,7 @@ describe("Auth use cases", () => {
       sentEmails,
       inMemoryCookieAccessor,
       inMemoryLuciaAdapter,
-    } = createTestUseCases(testHashingParams));
+    } = createTestUseCases({ hashingParams: testHashingParams, resetPasswordBaseUrl }));
     await useCases.signUp(emailAndPassword);
     user = authRepository.user.users[0];
     await inMemoryLuciaAdapter.deleteUserSessions(user.id);
@@ -181,6 +184,66 @@ describe("Auth use cases", () => {
     });
   });
 
+  describe("reset password and change it", () => {
+    it("triggers reset password", async () => {
+      const initialPasswordHash = "initialPasswordHash";
+      const userWithVerifiedEmail: UserWithPasswordHash = {
+        id: "user-reseting-password-id",
+        email: "email@reset.pwd",
+        emailVerifiedAt: new Date(),
+        passwordHash: initialPasswordHash,
+      };
+      authRepository.user.users = [userWithVerifiedEmail];
+      await useCases.resetPassword({ email: userWithVerifiedEmail.email });
+      expectSentEmailsToMatch([
+        { kind: "sendVerificationCode" },
+        {
+          kind: "sendPasswordResetLink",
+          params: {
+            email: userWithVerifiedEmail.email,
+            verificationLink: expect.any(String),
+          },
+        },
+      ]);
+      expectResetPasswordTokensToMatch([
+        {
+          userId: userWithVerifiedEmail.id,
+          tokenHash: expect.any(String),
+          expiresAt: expect.any(Date),
+        },
+      ]);
+
+      // biome-ignore lint/style/noNonNullAssertion: We tested it's not null
+      const resetPasswordEmail = sentEmails.at(-1)! as Extract<
+        SentEmail,
+        { kind: "sendPasswordResetLink" }
+      >;
+
+      expect(resetPasswordEmail.params.verificationLink).toContain(resetPasswordBaseUrl);
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      const token = resetPasswordEmail.params.verificationLink.split("/").pop()!;
+
+      const cookie = await useCases.changePassword({
+        email: userWithVerifiedEmail.email,
+        newPassword: "myNewPassword",
+        resetPasswordToken: token,
+      });
+      expectToMatch(cookie, {
+        name: "auth_session",
+        value: expect.any(String),
+      });
+      expectSessionsToMatch([
+        {
+          userId: userWithVerifiedEmail.id,
+          expiresAt: expect.any(Date),
+          id: expect.any(String),
+        },
+      ]);
+      expect(initialPasswordHash).not.toBe(userWithVerifiedEmail.passwordHash);
+      expectResetPasswordTokensToMatch([]);
+    });
+  });
+
   const expectSessionsToMatch = (expectedSessions: Partial<DatabaseSession>[]) => {
     expectObjectToMatchInArray(inMemoryLuciaAdapter.sessions, expectedSessions);
   };
@@ -200,5 +263,14 @@ describe("Auth use cases", () => {
 
   const expectSentEmailsToMatch = (expectedSentEmails: Partial<SentEmail>[]) => {
     expectObjectToMatchInArray(sentEmails, expectedSentEmails);
+  };
+
+  const expectResetPasswordTokensToMatch = (
+    expectedResetPasswordTokens: Partial<ResetPasswordToken>[],
+  ) => {
+    expectObjectToMatchInArray(
+      authRepository.resetPasswordToken.resetPasswordTokens,
+      expectedResetPasswordTokens,
+    );
   };
 });
