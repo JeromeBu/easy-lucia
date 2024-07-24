@@ -1,0 +1,1 @@
+export { createKyselyAuthRepository } from "./createKyselyAuthRepository";

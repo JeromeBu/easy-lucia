@@ -1,9 +1,11 @@
 import type { DatabaseSession } from "lucia";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { AuthUseCases } from "../src";
-import type { InMemoryAuthRepository } from "../src/in-memory-adapters/InMemoryAuthRepository";
-import type { InMemoryLuciaAdapter } from "../src/in-memory-adapters/InMemoryLuciaAdapter";
-import type { createInMemoryCookieAccessor } from "../src/in-memory-adapters/createInMemoryCookieAccessor";
+import type {
+  InMemoryAuthRepository,
+  InMemoryLuciaAdapter,
+  createInMemoryCookieAccessor,
+} from "../src/in-memory-adapters";
 import type {
   EmailVerification,
   HashingParams,
