@@ -1,9 +1,9 @@
 import { expect } from "vitest";
 import { createAuthUseCases } from "../src";
-import { InMemoryAuthRepository } from "../src/in-memory-adapter/InMemoryAuthRepository";
-import { InMemoryLuciaAdapter } from "../src/in-memory-adapter/InMemoryLuciaAdapter";
-import { createInMemoryCookieAccessor } from "../src/in-memory-adapter/createInMemoryCookieAccessor";
-import { createInMemoryLucia } from "../src/in-memory-adapter/createInMemoryLucia";
+import { InMemoryAuthRepository } from "../src/in-memory-adapters/InMemoryAuthRepository";
+import { InMemoryLuciaAdapter } from "../src/in-memory-adapters/InMemoryLuciaAdapter";
+import { createInMemoryCookieAccessor } from "../src/in-memory-adapters/createInMemoryCookieAccessor";
+import { createInMemoryLucia } from "../src/in-memory-adapters/createInMemoryLucia";
 import type { HashingParams } from "../src/types";
 
 export type SentEmail =
