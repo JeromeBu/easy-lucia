@@ -67,7 +67,7 @@ class InMemoryResetPasswordTokenRepository implements ResetPasswordTokenReposito
     delete this.#resetPasswordTokens[userId];
   }
 
-  async deleteAllByTokenHash(tokenHash: string): Promise<void> {
+  async deleteByTokenHash(tokenHash: string): Promise<void> {
     Object.keys(this.#resetPasswordTokens).forEach((token) => {
       if (this.#resetPasswordTokens[token].tokenHash === tokenHash) {
         delete this.#resetPasswordTokens[token];

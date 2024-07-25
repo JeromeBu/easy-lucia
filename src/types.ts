@@ -66,7 +66,7 @@ export type AuthRepository = {
       resetPasswordToken: string,
     ) => Promise<ResetPasswordToken | undefined>;
     deleteAllForUser: (userId: string) => Promise<void>;
-    deleteAllByTokenHash: (tokenHash: string) => Promise<void>;
+    deleteByTokenHash: (tokenHash: string) => Promise<void>;
   };
 };
 

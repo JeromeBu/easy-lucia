@@ -21,7 +21,7 @@ export const createChangePassword =
     const token = await authRepository.resetPasswordToken.getByTokenHash(tokenHash);
 
     if (token) {
-      await authRepository.resetPasswordToken.deleteAllByTokenHash(tokenHash);
+      await authRepository.resetPasswordToken.deleteByTokenHash(tokenHash);
     }
 
     if (!token || !isWithinExpirationDate(token.expiresAt)) {

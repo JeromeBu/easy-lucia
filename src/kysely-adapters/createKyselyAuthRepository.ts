@@ -17,7 +17,7 @@ export const createKyselyAuthRepository = <Db extends KyselyAuthDb>(
     getByUserId: async (userId) =>
       db
         .selectFrom("users_email_verification_codes")
-        .selectAll()
+        .select(["code", "userId", "email", "expiresAt"])
         .where("userId", "=", userId)
         .executeTakeFirst(),
   },
@@ -52,7 +52,7 @@ export const createKyselyAuthRepository = <Db extends KyselyAuthDb>(
         .where("userId", "=", userId)
         .executeTakeFirst();
     },
-    deleteAllByTokenHash: async (tokenHash) => {
+    deleteByTokenHash: async (tokenHash) => {
       await db
         .deleteFrom("users_reset_password_tokens")
         .where("tokenHash", "=", tokenHash)
@@ -61,7 +61,7 @@ export const createKyselyAuthRepository = <Db extends KyselyAuthDb>(
     getByTokenHash: async (tokenHash) =>
       db
         .selectFrom("users_reset_password_tokens")
-        .selectAll()
+        .select(["userId", "tokenHash", "expiresAt"])
         .where("tokenHash", "=", tokenHash)
         .executeTakeFirst(),
   },

@@ -38,6 +38,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("userId", "text", (c) =>
       c.notNull().references("users.id").onDelete("cascade"),
     )
+    .addColumn("tokenHash", "text", (c) => c.notNull())
     .addColumn("expiresAt", "timestamptz", (c) => c.notNull())
     .execute();
 }
