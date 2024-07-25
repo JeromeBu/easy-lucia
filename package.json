@@ -1,6 +1,6 @@
 {
   "name": "easy-lucia",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Login password classic setup with lucia, to avoid recoding the usecases each time. It only needs some config and email content to have an auth working.",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
     "build:cjs": "tsc -p tsconfig.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "test": "vitest",
+    "migrate": "DATABASE_URL=postgres://user:pg_password@localhost:5432/db npx kysely-ctl migrate",
     "typecheck": "tsc --noEmit",
     "check:cmd": "biome check --no-errors-on-unmatched",
     "check:fix": "pnpm check:cmd --write .",
@@ -26,17 +27,28 @@
   },
   "author": "u/JeromeBu",
   "license": "MIT",
-  "files": ["src/", "dist/", "!dist/tsconfig.tsbuildinfo"],
+  "files": ["srcold/", "dist/", "!dist/tsconfig.tsbuildinfo"],
   "keywords": [],
   "homepage": "https://github.com/JeromeBu/easy-lucia",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
     "@types/node": "^20.2.1",
+    "@types/pg": "^8.11.6",
+    "kysely": "^0.27.4",
+    "kysely-ctl": "^0.9.0",
     "lefthook": "^1.7.2",
+    "pg": "^8.12.0",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "lucia": "^3.2.0",
+    "oslo": "^1.2.1"
+  },
+  "peerDependencies": {
+    "kysely": "^0.27.4"
   }
 }
