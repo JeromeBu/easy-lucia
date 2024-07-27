@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && pnpm build:cjs && pnpm build:esm",
-    "build:cjs": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "test": "vitest",
     "migrate": "DATABASE_URL=postgres://user:pg_password@localhost:5432/db npx kysely-ctl migrate",
