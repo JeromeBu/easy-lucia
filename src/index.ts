@@ -8,17 +8,26 @@ import { createValidateRequest } from "./use-cases/createValidateRequest";
 import { createVerifyEmail } from "./use-cases/createVerifyEmail";
 
 export type AuthUseCases = ReturnType<typeof createAuthUseCases>;
-export const createAuthUseCases = (authDeps: AuthDependencies) => ({
-  signUp: createSignUp(authDeps),
-  login: createLogin(authDeps),
-  logout: createLogout(authDeps.lucia),
-  validateRequest: createValidateRequest(authDeps.lucia),
-  verifyEmail: createVerifyEmail(authDeps),
-  resetPassword: createResetPassword(authDeps),
-  changePassword: createChangePassword(authDeps),
-});
+export const createAuthUseCases = (authDependencies: AuthDependencies) => {
+  const authDeps = {
+    ...authDependencies,
+    hashingParams: authDependencies.hashingParams ?? defaultHashingParams,
+  };
+
+  return {
+    signUp: createSignUp(authDeps),
+    login: createLogin(authDeps),
+    logout: createLogout(authDeps.lucia),
+    validateRequest: createValidateRequest(authDeps.lucia),
+    verifyEmail: createVerifyEmail(authDeps),
+    resetPassword: createResetPassword(authDeps),
+    changePassword: createChangePassword(authDeps),
+  };
+};
 
 export type { AuthDependencies } from "./types";
+
+export { createLuciaAndAuthRepository } from "./createLucia";
 
 export const defaultHashingParams: HashingParams = {
   // recommended minimum parameters

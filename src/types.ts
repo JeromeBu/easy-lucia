@@ -83,5 +83,5 @@ export type AuthDependencies = {
   lucia: Lucia;
   authRepository: AuthRepository;
   emails: AuthEmailSenders;
-  hashingParams: HashingParams;
+  hashingParams?: HashingParams;
 };

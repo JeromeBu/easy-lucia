@@ -32,6 +32,7 @@
   "homepage": "https://github.com/JeromeBu/easy-lucia",
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
+    "@lucia-auth/adapter-postgresql": "^3.1.2",
     "@types/node": "^20.2.1",
     "@types/pg": "^8.11.6",
     "kysely": "^0.27.4",
@@ -49,6 +50,7 @@
     "oslo": "^1.2.1"
   },
   "peerDependencies": {
+    "@lucia-auth/adapter-postgresql": "^3.1.2",
     "kysely": "^0.27.4"
   }
 }
