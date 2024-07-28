@@ -1,3 +1,4 @@
+import type { Kysely } from "kysely";
 import { type Adapter, Lucia } from "lucia";
 import {
   InMemoryAuthRepository,
@@ -5,16 +6,16 @@ import {
   type InMemoryUserRepository,
 } from "./in-memory-adapters";
 import {
-  type KyselyAuthDb,
+  type AuthDb,
   createKyselyAuthRepository,
   createKyselyLuciaAdapter,
 } from "./kysely-adapters";
 import type { AuthRepository } from "./types";
 
-export const createLuciaAndAuthRepository = (
+export const createLuciaAndAuthRepository = <Db extends AuthDb>(
   params:
     | { kind: "in-memory"; secure: boolean; userRepository: InMemoryUserRepository }
-    | { kind: "kysely"; secure: boolean; kyselyDb: KyselyAuthDb },
+    | { kind: "kysely"; secure: boolean; kyselyDb: Kysely<Db> },
 ): {
   lucia: Lucia;
   authRepository: AuthRepository;
@@ -33,10 +34,10 @@ export const createLuciaAndAuthRepository = (
   if (params.kind === "kysely") {
     return {
       lucia: createLucia({
-        adapter: createKyselyLuciaAdapter(params.kyselyDb),
+        adapter: createKyselyLuciaAdapter(params.kyselyDb as any),
         secure: params.secure,
       }),
-      authRepository: createKyselyAuthRepository(params.kyselyDb),
+      authRepository: createKyselyAuthRepository(params.kyselyDb as any),
     };
   }
 

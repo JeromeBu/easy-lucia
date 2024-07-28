@@ -6,23 +6,6 @@
     "type": "git",
     "url": "git://github.com/JeromeBu/easy-lucia.git"
   },
-  "export": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./in-memory-adapters": {
-      "require": "./dist/in-memory-adapters/index.js",
-      "import": "./dist/esm/in-memory-adapters/index.js",
-      "types": "./dist/in-memory-adapters/index.d.ts"
-    },
-    "./kysely-adapters": {
-      "require": "./dist/kysely-adapters/index.js",
-      "import": "./dist/esm/kysely-adapters/index.js",
-      "types": "./dist/kysely-adapters/index.d.ts"
-    }
-  },
   "scripts": {
     "build": "rm -rf dist && pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc -p tsconfig.cjs.json",
