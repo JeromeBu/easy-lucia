@@ -1,6 +1,6 @@
 {
   "name": "easy-lucia",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Login password classic setup with lucia, to avoid recoding the usecases each time. It only needs some config and email content to have an auth working.",
   "repository": {
     "type": "git",
