@@ -11,10 +11,10 @@ import {
 } from "./kysely-adapters";
 import type { AuthRepository } from "./types";
 
-export const createLuciaAndAuthRepository = <Db extends KyselyAuthDb>(
+export const createLuciaAndAuthRepository = (
   params:
     | { kind: "in-memory"; secure: boolean; userRepository: InMemoryUserRepository }
-    | { kind: "kysely"; secure: boolean; kyselyDb: Db },
+    | { kind: "kysely"; secure: boolean; kyselyDb: KyselyAuthDb },
 ): {
   lucia: Lucia;
   authRepository: AuthRepository;

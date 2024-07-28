@@ -1,3 +1,3 @@
 export { createKyselyAuthRepository } from "./createKyselyAuthRepository";
 export { createKyselyLuciaAdapter } from "./createKyselyLuciaAdapter";
-export type { KyselyAuthDb } from "./AuthDb";
+export type { KyselyAuthDb, AuthDb } from "./AuthDb";
