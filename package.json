@@ -1,10 +1,27 @@
 {
   "name": "easy-lucia",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Login password classic setup with lucia, to avoid recoding the usecases each time. It only needs some config and email content to have an auth working.",
   "repository": {
     "type": "git",
     "url": "git://github.com/JeromeBu/easy-lucia.git"
+  },
+  "export": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./in-memory-adapters": {
+      "require": "./dist/in-memory-adapters/index.js",
+      "import": "./dist/esm/in-memory-adapters/index.js",
+      "types": "./dist/in-memory-adapters/index.d.ts"
+    },
+    "./kysely-adapters": {
+      "require": "./dist/kysely-adapters/index.js",
+      "import": "./dist/esm/kysely-adapters/index.js",
+      "types": "./dist/kysely-adapters/index.d.ts"
+    }
   },
   "scripts": {
     "build": "rm -rf dist && pnpm build:cjs && pnpm build:esm",
@@ -20,6 +37,7 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/esm/index.js",
   "exports": {
     ".": "./dist/index.js",
     "./*": "./dist/*.js",

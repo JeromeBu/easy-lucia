@@ -1,5 +1,6 @@
-export type { Session, User } from "lucia";
+export type { Session, User, Cookie } from "lucia";
 import type { AuthDependencies, HashingParams } from "./types";
+
 import { createChangePassword } from "./use-cases/createChangePassword";
 import { createLogin } from "./use-cases/createLogin";
 import { createLogout } from "./use-cases/createLogout";

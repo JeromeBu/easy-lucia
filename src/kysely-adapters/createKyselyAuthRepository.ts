@@ -1,9 +1,7 @@
 import type { AuthRepository } from "../types";
 import type { KyselyAuthDb } from "./AuthDb";
 
-export const createKyselyAuthRepository = <Db extends KyselyAuthDb>(
-  db: Db,
-): AuthRepository => ({
+export const createKyselyAuthRepository = (db: KyselyAuthDb): AuthRepository => ({
   emailVerificationCode: {
     deleteAllForUser: async (userId) => {
       await db
