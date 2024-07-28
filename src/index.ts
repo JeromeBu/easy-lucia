@@ -1,3 +1,4 @@
+export type { Session, User } from "lucia";
 import type { AuthDependencies, HashingParams } from "./types";
 import { createChangePassword } from "./use-cases/createChangePassword";
 import { createLogin } from "./use-cases/createLogin";
@@ -8,6 +9,7 @@ import { createValidateRequest } from "./use-cases/createValidateRequest";
 import { createVerifyEmail } from "./use-cases/createVerifyEmail";
 
 export type AuthUseCases = ReturnType<typeof createAuthUseCases>;
+
 export const createAuthUseCases = (authDependencies: AuthDependencies) => {
   const authDeps = {
     ...authDependencies,
