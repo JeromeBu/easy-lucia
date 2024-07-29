@@ -22,9 +22,21 @@
   "types": "dist/index.d.ts",
   "module": "dist/esm/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*.js",
-    "./tools": "./dist/tools/index.js"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": {
+      "require": "./dist/*.js",
+      "import": "./dist/esm/*.js",
+      "types": "./dist/*.d.ts"
+    },
+    "./tools": {
+      "require": "./dist/tools/index.js",
+      "import": "./dist/esm/tools/index.js",
+      "types": "./dist/tools/index.d.ts"
+    }
   },
   "author": "u/JeromeBu",
   "license": "MIT",
