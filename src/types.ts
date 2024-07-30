@@ -6,7 +6,7 @@ export type EmailAndPassword = {
   password: string;
 };
 
-export type CookieAccessor = () => {
+export type MakeCookieAccessor = () => {
   get: (name: string) => { value: string } | undefined;
   set: (name: string, value: string, attributes?: Record<string, any>) => void;
 };

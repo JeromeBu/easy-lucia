@@ -1,15 +1,18 @@
 import type { User } from "lucia";
 import { isWithinExpirationDate } from "oslo";
-import type { AuthDependencies, EmailVerification } from "../types";
+import type { AuthDependencies, EmailVerification, MakeCookieAccessor } from "../types";
 
 export const createVerifyEmail = ({ lucia, authRepository }: AuthDependencies) => {
-  return async ({
-    sessionId,
-    candidateCode,
-  }: {
-    sessionId: string;
-    candidateCode: string;
-  }) => {
+  return async (
+    {
+      sessionId,
+      candidateCode,
+    }: {
+      sessionId: string;
+      candidateCode: string;
+    },
+    cookies: MakeCookieAccessor,
+  ) => {
     const { user } = await lucia.validateSession(sessionId);
     if (!user) throw new Error("Unauthorized");
 
@@ -32,7 +35,8 @@ export const createVerifyEmail = ({ lucia, authRepository }: AuthDependencies) =
     });
 
     const session = await lucia.createSession(user.id, {});
-    return lucia.createSessionCookie(session.id);
+    const cookie = lucia.createSessionCookie(session.id);
+    cookies().set(cookie.name, cookie.value, cookie.attributes);
   };
 };
 

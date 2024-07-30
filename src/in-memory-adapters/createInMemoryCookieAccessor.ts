@@ -1,4 +1,4 @@
-import type { CookieAccessor } from "../types";
+import type { MakeCookieAccessor } from "../types";
 
 export const createInMemoryCookieAccessor = () => {
   const cookies: Record<string, { key: string; value: string }> = {};
@@ -7,6 +7,6 @@ export const createInMemoryCookieAccessor = () => {
     set: (name: string, value: string) => {
       cookies[name] = { key: name, value };
     },
-    cookies,
-  })) satisfies CookieAccessor;
+    cookiesStored: Object.values(cookies),
+  })) satisfies MakeCookieAccessor;
 };

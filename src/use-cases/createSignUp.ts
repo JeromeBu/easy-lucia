@@ -3,12 +3,12 @@ import { createDate } from "oslo";
 import { alphabet, generateRandomString } from "oslo/crypto";
 import { Argon2id } from "oslo/password";
 
-import type { AuthDependencies, EmailAndPassword } from "../types";
+import type { AuthDependencies, EmailAndPassword, MakeCookieAccessor } from "../types";
 import { sanitizeEmail, sanitizePassword } from "../utils";
 
 export const createSignUp =
   ({ lucia, authRepository, emails, hashingParams }: AuthDependencies) =>
-  async (params: EmailAndPassword) => {
+  async (params: EmailAndPassword, cookies: MakeCookieAccessor) => {
     const email = sanitizeEmail(params.email);
     const password = sanitizePassword(params.password);
     const passwordHash = await new Argon2id(hashingParams).hash(password);
@@ -37,7 +37,8 @@ export const createSignUp =
       });
 
       const session = await lucia.createSession(userId, {});
-      return lucia.createSessionCookie(session.id);
+      const cookie = lucia.createSessionCookie(session.id);
+      cookies().set(cookie.name, cookie.value, cookie.attributes);
     } catch {
       // db error, email taken, etc
       throw new Error("Email already used");
