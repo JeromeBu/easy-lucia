@@ -5,7 +5,7 @@ import type {
   InMemoryAuthRepository,
   InMemoryLuciaAdapter,
 } from "../src/in-memory-adapters";
-import type { InMemoryCookieAccessor } from "../src/in-memory-adapters/InMemoryCookieAccessor";
+import type { InMemoryCookieAccessor } from "../src/in-memory-adapters";
 import type {
   EmailVerification,
   HashingParams,
