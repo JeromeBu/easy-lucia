@@ -4,8 +4,8 @@ import type { AuthUseCases } from "../src";
 import type {
   InMemoryAuthRepository,
   InMemoryLuciaAdapter,
-  createInMemoryCookieAccessor,
 } from "../src/in-memory-adapters";
+import type { InMemoryCookieAccessor } from "../src/in-memory-adapters/InMemoryCookieAccessor";
 import type {
   EmailVerification,
   HashingParams,
@@ -41,7 +41,7 @@ describe("Auth use cases", () => {
   let sentEmails: SentEmail[];
   let user: UserWithPasswordHash;
   let inMemoryLuciaAdapter: InMemoryLuciaAdapter;
-  let inMemoryCookieAccessor: ReturnType<typeof createInMemoryCookieAccessor>;
+  let inMemoryCookieAccessor: InMemoryCookieAccessor;
 
   beforeEach(async () => {
     ({
@@ -51,7 +51,7 @@ describe("Auth use cases", () => {
       inMemoryCookieAccessor,
       inMemoryLuciaAdapter,
     } = createTestUseCases({ hashingParams: testHashingParams, resetPasswordBaseUrl }));
-    await useCases.signUp(emailAndPassword, inMemoryCookieAccessor);
+    await useCases.signUp(emailAndPassword);
     user = authRepository.user.users[0];
     await inMemoryLuciaAdapter.deleteUserSessions(user.id);
   });
@@ -63,15 +63,15 @@ describe("Auth use cases", () => {
         email: " anothER@test.com",
         password: "myPassw0rd+12 ",
       };
-      await useCases.signUp(nowEmailAndPassword, inMemoryCookieAccessor);
+      await useCases.signUp(nowEmailAndPassword);
 
-      expectToMatch(inMemoryCookieAccessor().cookiesStored, [
+      expectToMatch(inMemoryCookieAccessor.cookies, [
         {
-          key: "auth_session",
+          name: "auth_session",
           value: expect.any(String),
         },
       ]);
-      const cookie = inMemoryCookieAccessor().cookiesStored[0];
+      const cookie = inMemoryCookieAccessor.cookies[0];
 
       expectSessionsToMatch([
         {
@@ -126,16 +126,13 @@ describe("Auth use cases", () => {
         },
       ]);
 
-      await useCases.verifyEmail(
+      await useCases.verifyEmail({
+        candidateCode: emailVerificationInRepo.code,
+        sessionId: cookie.value,
+      });
+      expectToMatch(inMemoryCookieAccessor.cookies, [
         {
-          candidateCode: emailVerificationInRepo.code,
-          sessionId: cookie.value,
-        },
-        inMemoryCookieAccessor,
-      );
-      expectToMatch(inMemoryCookieAccessor().cookiesStored, [
-        {
-          key: "auth_session",
+          name: "auth_session",
           value: expect.any(String),
         },
       ]);
@@ -146,10 +143,7 @@ describe("Auth use cases", () => {
   describe("login, verifyRequest and logout", () => {
     it("fails if no user are found with email", async () => {
       expectPromiseToFailWith(
-        useCases.login(
-          { email: "not@found.com", password: "whatever" },
-          inMemoryCookieAccessor,
-        ),
+        useCases.login({ email: "not@found.com", password: "whatever" }),
         "Invalid email or password",
       );
     });
@@ -157,26 +151,23 @@ describe("Auth use cases", () => {
     it("fails if password do not match", async () => {
       authRepository.user.users = [user];
       expectPromiseToFailWith(
-        useCases.login(
-          { email: emailAndPassword.email, password: "wrongPassword" },
-          inMemoryCookieAccessor,
-        ),
+        useCases.login({ email: emailAndPassword.email, password: "wrongPassword" }),
         "Invalid email or password",
       );
     });
 
     it("login creates a session and the cookie, than validates a request, than logout", async () => {
       authRepository.user.users = [user];
-      await useCases.login(emailAndPassword, inMemoryCookieAccessor);
-      expectToMatch(inMemoryCookieAccessor().cookiesStored, [
+      await useCases.login(emailAndPassword);
+      expectToMatch(inMemoryCookieAccessor.cookies, [
         {
-          key: "auth_session",
+          name: "auth_session",
           value: expect.any(String),
         },
       ]);
       expectSessionsToMatch([{ userId: user.id }]);
 
-      const result = await useCases.validateRequest(inMemoryCookieAccessor);
+      const result = await useCases.validateRequest();
       expectToMatch(result, {
         user: {
           id: user.id,
@@ -191,11 +182,11 @@ describe("Auth use cases", () => {
         },
       });
 
-      await useCases.logout(inMemoryCookieAccessor);
+      await useCases.logout();
 
-      expectToMatch(inMemoryCookieAccessor().cookiesStored, [
+      expectToMatch(inMemoryCookieAccessor.cookies, [
         {
-          key: "auth_session",
+          name: "auth_session",
           value: "",
         },
       ]);
@@ -242,17 +233,14 @@ describe("Auth use cases", () => {
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       const token = resetPasswordEmail.params.verificationLink.split("/").pop()!;
 
-      await useCases.changePassword(
+      await useCases.changePassword({
+        email: userWithVerifiedEmail.email,
+        newPassword: "myNewPassword",
+        resetPasswordToken: token,
+      });
+      expectToMatch(inMemoryCookieAccessor.cookies, [
         {
-          email: userWithVerifiedEmail.email,
-          newPassword: "myNewPassword",
-          resetPasswordToken: token,
-        },
-        inMemoryCookieAccessor,
-      );
-      expectToMatch(inMemoryCookieAccessor().cookiesStored, [
-        {
-          key: "auth_session",
+          name: "auth_session",
           value: expect.any(String),
         },
       ]);

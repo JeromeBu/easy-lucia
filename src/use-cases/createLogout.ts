@@ -1,16 +1,15 @@
-import type { Lucia } from "lucia";
-
-import type { MakeCookieAccessor } from "../types";
+import type { AuthDependencies } from "../types";
 import { createValidateRequest } from "./createValidateRequest";
 
-export const createLogout = (lucia: Lucia) => {
-  const validateRequest = createValidateRequest(lucia);
-  return async (cookies: MakeCookieAccessor) => {
-    const { session } = await validateRequest(cookies);
+export const createLogout = (deps: AuthDependencies) => {
+  const validateRequest = createValidateRequest(deps);
+  const { cookieAccessor, lucia } = deps;
+  return async () => {
+    const { session } = await validateRequest();
     if (!session) throw new Error("Unauthorized");
 
     await lucia.invalidateSession(session.id);
     const blankCookie = lucia.createBlankSessionCookie();
-    cookies().set(blankCookie.name, blankCookie.value, blankCookie.attributes);
+    cookieAccessor.set(blankCookie);
   };
 };

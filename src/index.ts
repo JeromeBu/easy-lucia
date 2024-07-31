@@ -20,8 +20,8 @@ export const createAuthUseCases = (authDependencies: AuthDependencies) => {
   return {
     signUp: createSignUp(authDeps),
     login: createLogin(authDeps),
-    logout: createLogout(authDeps.lucia),
-    validateRequest: createValidateRequest(authDeps.lucia),
+    logout: createLogout(authDeps),
+    validateRequest: createValidateRequest(authDeps),
     verifyEmail: createVerifyEmail(authDeps),
     resetPassword: createResetPassword(authDeps),
     changePassword: createChangePassword(authDeps),

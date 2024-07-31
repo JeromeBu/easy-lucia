@@ -1,9 +1,11 @@
 import { expect } from "vitest";
-import { createAuthUseCases } from "../src";
-import { InMemoryAuthRepository } from "../src/in-memory-adapters/InMemoryAuthRepository";
-import { InMemoryLuciaAdapter } from "../src/in-memory-adapters/InMemoryLuciaAdapter";
-import { createInMemoryCookieAccessor } from "../src/in-memory-adapters/createInMemoryCookieAccessor";
-import { createInMemoryLucia } from "../src/in-memory-adapters/createInMemoryLucia";
+import { type AuthUseCases, createAuthUseCases } from "../src";
+import {
+  InMemoryAuthRepository,
+  InMemoryLuciaAdapter,
+  createInMemoryLucia,
+} from "../src/in-memory-adapters";
+import { InMemoryCookieAccessor } from "../src/in-memory-adapters/InMemoryCookieAccessor";
 import type { HashingParams } from "../src/types";
 
 export type SentEmail =
@@ -25,8 +27,14 @@ export type SentEmail =
 export const createTestUseCases = (config: {
   hashingParams: HashingParams;
   resetPasswordBaseUrl: string;
-}) => {
-  const inMemoryCookieAccessor = createInMemoryCookieAccessor();
+}): {
+  authRepository: InMemoryAuthRepository;
+  useCases: AuthUseCases;
+  sentEmails: SentEmail[];
+  inMemoryCookieAccessor: InMemoryCookieAccessor;
+  inMemoryLuciaAdapter: InMemoryLuciaAdapter;
+} => {
+  const inMemoryCookieAccessor = new InMemoryCookieAccessor();
   const authRepository = new InMemoryAuthRepository();
   const inMemoryLuciaAdapter = new InMemoryLuciaAdapter(authRepository.user);
   const inMemoryLucia = createInMemoryLucia(inMemoryLuciaAdapter);
@@ -34,6 +42,7 @@ export const createTestUseCases = (config: {
   const sentEmails: SentEmail[] = [];
 
   const useCases = createAuthUseCases({
+    cookieAccessor: inMemoryCookieAccessor,
     lucia: inMemoryLucia,
     authRepository,
     emails: {

@@ -1,13 +1,11 @@
 import { Argon2id } from "oslo/password";
 
-import type { EmailAndPassword, MakeCookieAccessor } from "../types";
-
-import type { AuthDependencies } from "../types";
+import type { AuthDependencies, EmailAndPassword } from "../types";
 import { sanitizeEmail, sanitizePassword } from "../utils";
 
 export const createLogin =
-  ({ lucia, authRepository, hashingParams }: AuthDependencies) =>
-  async (params: EmailAndPassword, cookies: MakeCookieAccessor) => {
+  ({ lucia, authRepository, hashingParams, cookieAccessor }: AuthDependencies) =>
+  async (params: EmailAndPassword) => {
     const email = sanitizeEmail(params.email);
     const password = sanitizePassword(params.password);
     const user = await authRepository.user.findByEmail(email);
@@ -37,5 +35,5 @@ export const createLogin =
 
     const session = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(session.id);
-    cookies().set(cookie.name, cookie.value, cookie.attributes);
+    cookieAccessor.set(cookie);
   };

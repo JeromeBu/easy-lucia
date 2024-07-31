@@ -1,4 +1,4 @@
-import type { Lucia, User } from "lucia";
+import type { Cookie, Lucia, User } from "lucia";
 import type { TypedArray } from "oslo";
 
 export type EmailAndPassword = {
@@ -6,9 +6,12 @@ export type EmailAndPassword = {
   password: string;
 };
 
-export type MakeCookieAccessor = () => {
-  get: (name: string) => { value: string } | undefined;
-  set: (name: string, value: string, attributes?: Record<string, any>) => void;
+export type SetCookie = (cookie: Cookie) => void;
+export type GetCookie = (name: string) => Cookie | undefined;
+
+export type CookieAccessor = {
+  get: GetCookie;
+  set: SetCookie;
 };
 
 export type AuthEmailSenders = {
@@ -79,6 +82,7 @@ export type HashingParams = {
 };
 
 export type AuthDependencies = {
+  cookieAccessor: CookieAccessor;
   resetPasswordBaseUrl: string;
   lucia: Lucia;
   authRepository: AuthRepository;

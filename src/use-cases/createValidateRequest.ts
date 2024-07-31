@@ -1,13 +1,11 @@
-import type { Lucia, Session, User } from "lucia";
+import type { Session, User } from "lucia";
 
-import type { MakeCookieAccessor } from "../types";
+import type { AuthDependencies } from "../types";
 
 export const createValidateRequest =
-  (lucia: Lucia) =>
-  async (
-    cookies: MakeCookieAccessor,
-  ): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+  ({ lucia, cookieAccessor }: AuthDependencies) =>
+  async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+    const sessionId = cookieAccessor.get(lucia.sessionCookieName)?.value ?? null;
     if (!sessionId) {
       return { user: null, session: null };
     }
@@ -16,14 +14,15 @@ export const createValidateRequest =
     try {
       if (result.session?.fresh) {
         const sessionCookie = lucia.createSessionCookie(result.session.id);
-        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        cookieAccessor.set(sessionCookie);
       }
+
       if (!result.session) {
         const sessionCookie = lucia.createBlankSessionCookie();
-        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        cookieAccessor.set(sessionCookie);
       }
-    } catch {
-      console.error("Failed to set session cookie");
+    } catch (e: any) {
+      console.error(`Failed to set session cookie : ${e?.message}`);
     }
 
     return result;

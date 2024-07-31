@@ -3,21 +3,18 @@ import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { Argon2id } from "oslo/password";
 
-import type { AuthDependencies, MakeCookieAccessor } from "../types";
+import type { AuthDependencies } from "../types";
 
 export const createChangePassword =
-  ({ authRepository, lucia, hashingParams }: AuthDependencies) =>
-  async (
-    {
-      newPassword,
-      resetPasswordToken,
-    }: {
-      email: string;
-      newPassword: string;
-      resetPasswordToken: string;
-    },
-    cookies: MakeCookieAccessor,
-  ) => {
+  ({ authRepository, lucia, hashingParams, cookieAccessor }: AuthDependencies) =>
+  async ({
+    newPassword,
+    resetPasswordToken,
+  }: {
+    email: string;
+    newPassword: string;
+    resetPasswordToken: string;
+  }) => {
     const tokenHash = encodeHex(
       await sha256(new TextEncoder().encode(resetPasswordToken)),
     );
@@ -42,5 +39,5 @@ export const createChangePassword =
 
     const session = await lucia.createSession(token.userId, {});
     const cookie = lucia.createSessionCookie(session.id);
-    cookies().set(cookie.name, cookie.value, cookie.attributes);
+    cookieAccessor.set(cookie);
   };
