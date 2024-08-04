@@ -15,7 +15,11 @@ export type CookieAccessor = {
 };
 
 export type AuthEmailSenders = {
-  sendVerificationCode: (params: {
+  sendSignedUpSuccessfully: (params: {
+    email: string;
+    code: string;
+  }) => Promise<void>;
+  sendVerificationCodeAgain: (params: {
     email: string;
     code: string;
   }) => Promise<void>;
@@ -25,7 +29,7 @@ export type AuthEmailSenders = {
   }) => Promise<void>;
 };
 
-export type EmailVerification = {
+export type EmailVerificationCode = {
   code: string;
   userId: string;
   email: string;
@@ -59,8 +63,8 @@ export type AuthRepository = {
 
   emailVerificationCode: {
     deleteAllForUser: (userId: string) => Promise<void>;
-    insert: (emailVerification: EmailVerification) => Promise<void>;
-    getByUserId: (userId: string) => Promise<EmailVerification | undefined>;
+    insert: (emailVerification: EmailVerificationCode) => Promise<void>;
+    getByUserId: (userId: string) => Promise<EmailVerificationCode | undefined>;
   };
 
   resetPasswordToken: {

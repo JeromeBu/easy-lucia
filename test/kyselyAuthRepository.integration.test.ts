@@ -5,7 +5,7 @@ import { createKyselyAuthRepository } from "../src/kysely-adapters";
 import type { AuthDb, KyselyAuthDb } from "../src/kysely-adapters/AuthDb";
 import type {
   AuthRepository,
-  EmailVerification,
+  EmailVerificationCode,
   ResetPasswordToken,
   UserWithPasswordHash,
 } from "../src/types";
@@ -74,7 +74,7 @@ describe("Kysely Auth Repository", () => {
     it("inserts a emailVerificationCode, finds it by userId, deletes all codes for the user", async () => {
       await authRepository.user.insert(user);
 
-      const emailVerificationCode: EmailVerification = {
+      const emailVerificationCode: EmailVerificationCode = {
         code: "code",
         userId: user.id,
         email: user.email,

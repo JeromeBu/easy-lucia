@@ -2,22 +2,29 @@ import { expect } from "vitest";
 import { type AuthUseCases, createAuthUseCases } from "../src";
 import {
   InMemoryAuthRepository,
+  InMemoryCookieAccessor,
   InMemoryLuciaAdapter,
   createInMemoryLucia,
 } from "../src/in-memory-adapters";
-import { InMemoryCookieAccessor } from "../src/in-memory-adapters/InMemoryCookieAccessor";
 import type { HashingParams } from "../src/types";
 
 export type SentEmail =
   | {
-      kind: "sendVerificationCode";
+      kind: "signedUpSuccessfully";
       params: {
         email: string;
         code: string;
       };
     }
   | {
-      kind: "sendPasswordResetLink";
+      kind: "verificationCodeAgain";
+      params: {
+        email: string;
+        code: string;
+      };
+    }
+  | {
+      kind: "passwordResetLink";
       params: {
         email: string;
         verificationLink: string;
@@ -46,11 +53,14 @@ export const createTestUseCases = (config: {
     lucia: inMemoryLucia,
     authRepository,
     emails: {
-      sendVerificationCode: async (params) => {
-        sentEmails.push({ kind: "sendVerificationCode", params });
+      sendSignedUpSuccessfully: async (params) => {
+        sentEmails.push({ kind: "signedUpSuccessfully", params });
+      },
+      sendVerificationCodeAgain: async (params) => {
+        sentEmails.push({ kind: "verificationCodeAgain", params });
       },
       sendPasswordResetLink: async (params) => {
-        sentEmails.push({ kind: "sendPasswordResetLink", params });
+        sentEmails.push({ kind: "passwordResetLink", params });
       },
     },
     resetPasswordBaseUrl: config.resetPasswordBaseUrl,

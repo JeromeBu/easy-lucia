@@ -1,6 +1,6 @@
 import type {
   AuthRepository,
-  EmailVerification,
+  EmailVerificationCode,
   ResetPasswordToken,
   UserWithPasswordHash,
 } from "../types";
@@ -40,22 +40,22 @@ export class InMemoryUserRepository implements UserRepository {
 
 type EmailVerificationRepository = AuthRepository["emailVerificationCode"];
 class InMemoryEmailVerificationRepository implements EmailVerificationRepository {
-  #emailVerifications: Record<string, EmailVerification> = {};
+  #emailVerificationCodes: Record<string, EmailVerificationCode> = {};
 
   async deleteAllForUser(userId: string): Promise<void> {
-    delete this.#emailVerifications[userId];
+    delete this.#emailVerificationCodes[userId];
   }
 
-  async insert(emailVerification: EmailVerification): Promise<void> {
-    this.#emailVerifications[emailVerification.userId] = emailVerification;
+  async insert(emailVerification: EmailVerificationCode): Promise<void> {
+    this.#emailVerificationCodes[emailVerification.userId] = emailVerification;
   }
 
-  async getByUserId(userId: string): Promise<EmailVerification | undefined> {
-    return this.#emailVerifications[userId];
+  async getByUserId(userId: string): Promise<EmailVerificationCode | undefined> {
+    return this.#emailVerificationCodes[userId];
   }
 
-  get emailVerifications() {
-    return Object.values(this.#emailVerifications);
+  get emailVerificationCodes() {
+    return Object.values(this.#emailVerificationCodes);
   }
 }
 

@@ -5,6 +5,7 @@ export type { CookieAccessor } from "./types";
 import { createChangePassword } from "./use-cases/createChangePassword";
 import { createLogin } from "./use-cases/createLogin";
 import { createLogout } from "./use-cases/createLogout";
+import { createResendVerificationEmail } from "./use-cases/createResendVerificationEmail";
 import { createResetPassword } from "./use-cases/createResetPassword";
 import { createSignUp } from "./use-cases/createSignUp";
 import { createValidateRequest } from "./use-cases/createValidateRequest";
@@ -20,6 +21,7 @@ export const createAuthUseCases = (authDependencies: AuthDependencies) => {
 
   return {
     signUp: createSignUp(authDeps),
+    resendVerificationEmail: createResendVerificationEmail(authDeps),
     login: createLogin(authDeps),
     logout: createLogout(authDeps),
     validateRequest: createValidateRequest(authDeps),

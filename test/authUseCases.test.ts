@@ -7,7 +7,7 @@ import type {
 } from "../src/in-memory-adapters";
 import type { InMemoryCookieAccessor } from "../src/in-memory-adapters";
 import type {
-  EmailVerification,
+  EmailVerificationCode,
   HashingParams,
   ResetPasswordToken,
   UserWithPasswordHash,
@@ -56,8 +56,8 @@ describe("Auth use cases", () => {
     await inMemoryLuciaAdapter.deleteUserSessions(user.id);
   });
 
-  describe("signUp and verify email", () => {
-    it("saves the user and the session, and sets the cookie", async () => {
+  describe("signUp, ask for verification email again, verify email", () => {
+    it("saves the user and the session, and sets the cookie, than send other code, than verify email", async () => {
       expectToEqual(inMemoryLuciaAdapter.sessions, []);
       const nowEmailAndPassword = {
         email: " anothER@test.com",
@@ -96,7 +96,7 @@ describe("Auth use cases", () => {
       // even if the password is the same, the hash is different
       expect(user.passwordHash).not.toEqual(newUser.passwordHash);
 
-      expectVerificationEmailsToMatch([
+      expectVerificationEmailCodesToMatch([
         { userId: user.id },
         {
           code: expect.any(String),
@@ -105,31 +105,83 @@ describe("Auth use cases", () => {
           expiresAt: expect.any(Date),
         },
       ]);
-      const emailVerificationInRepo =
+      const signUpEmailVerificationCode =
         // biome-ignore lint/style/noNonNullAssertion: we test it's not null
-        authRepository.emailVerificationCode.emailVerifications.at(-1)!;
+        authRepository.emailVerificationCode.emailVerificationCodes.at(-1)!;
 
       expectSentEmailsToMatch([
         {
-          kind: "sendVerificationCode",
+          kind: "signedUpSuccessfully",
           params: {
             email: user.email,
             code: expect.any(String),
           },
         },
         {
-          kind: "sendVerificationCode",
+          kind: "signedUpSuccessfully",
           params: {
             email: newUser.email,
-            code: emailVerificationInRepo.code,
+            code: signUpEmailVerificationCode.code,
+          },
+        },
+      ]);
+
+      await useCases.resendVerificationEmail();
+
+      await expectPromiseToFailWith(
+        useCases.verifyEmail({
+          candidateCode: signUpEmailVerificationCode.code,
+          sessionId: cookie.value,
+        }),
+        "Bad request",
+      );
+
+      expectVerificationEmailCodesToMatch([
+        { userId: user.id },
+        {
+          code: expect.any(String),
+          userId: newUser.id,
+          email: newUser.email,
+          expiresAt: expect.any(Date),
+        },
+      ]);
+      const emailVerificationCodeAgain =
+        // biome-ignore lint/style/noNonNullAssertion: we test it's not null
+        authRepository.emailVerificationCode.emailVerificationCodes.at(-1)!;
+
+      expect(emailVerificationCodeAgain.code).not.toEqual(
+        signUpEmailVerificationCode.code,
+      );
+
+      expectSentEmailsToMatch([
+        {
+          kind: "signedUpSuccessfully",
+          params: {
+            email: user.email,
+            code: expect.any(String),
+          },
+        },
+        {
+          kind: "signedUpSuccessfully",
+          params: {
+            email: newUser.email,
+            code: signUpEmailVerificationCode.code,
+          },
+        },
+        {
+          kind: "verificationCodeAgain",
+          params: {
+            email: newUser.email,
+            code: emailVerificationCodeAgain.code,
           },
         },
       ]);
 
       await useCases.verifyEmail({
-        candidateCode: emailVerificationInRepo.code,
+        candidateCode: emailVerificationCodeAgain.code,
         sessionId: cookie.value,
       });
+
       expectToMatch(inMemoryCookieAccessor.cookies, [
         {
           name: "auth_session",
@@ -206,9 +258,9 @@ describe("Auth use cases", () => {
       authRepository.user.users = [userWithVerifiedEmail];
       await useCases.resetPassword({ email: userWithVerifiedEmail.email });
       expectSentEmailsToMatch([
-        { kind: "sendVerificationCode" },
+        { kind: "signedUpSuccessfully" },
         {
-          kind: "sendPasswordResetLink",
+          kind: "passwordResetLink",
           params: {
             email: userWithVerifiedEmail.email,
             verificationLink: expect.any(String),
@@ -226,7 +278,7 @@ describe("Auth use cases", () => {
       // biome-ignore lint/style/noNonNullAssertion: We tested it's not null
       const resetPasswordEmail = sentEmails.at(-1)! as Extract<
         SentEmail,
-        { kind: "sendPasswordResetLink" }
+        { kind: "passwordResetLink" }
       >;
 
       expect(resetPasswordEmail.params.verificationLink).toContain(resetPasswordBaseUrl);
@@ -264,12 +316,12 @@ describe("Auth use cases", () => {
     expectObjectToMatchInArray(authRepository.user.users, expectedUsers);
   };
 
-  const expectVerificationEmailsToMatch = (
-    expectedVerificationEmails: Partial<EmailVerification>[],
+  const expectVerificationEmailCodesToMatch = (
+    expectedVerificationEmailCodes: Partial<EmailVerificationCode>[],
   ) => {
     expectObjectToMatchInArray(
-      authRepository.emailVerificationCode.emailVerifications,
-      expectedVerificationEmails,
+      authRepository.emailVerificationCode.emailVerificationCodes,
+      expectedVerificationEmailCodes,
     );
   };
 

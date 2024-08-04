@@ -31,7 +31,7 @@ export const createSignUp =
         expiresAt: createDate(new TimeSpan(3, "h")),
       });
 
-      await emails.sendVerificationCode({
+      await emails.sendSignedUpSuccessfully({
         email,
         code: emailValidationCode,
       });

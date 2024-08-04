@@ -1,6 +1,6 @@
 import type { User } from "lucia";
 import { isWithinExpirationDate } from "oslo";
-import type { AuthDependencies, EmailVerification } from "../types";
+import type { AuthDependencies, EmailVerificationCode } from "../types";
 
 export const createVerifyEmail = ({
   lucia,
@@ -46,7 +46,7 @@ const isCodeValid = ({
   candidateCode,
   user,
 }: {
-  dbEmailVerification: EmailVerification | undefined;
+  dbEmailVerification: EmailVerificationCode | undefined;
   candidateCode: string;
   user: User;
 }): boolean => {
